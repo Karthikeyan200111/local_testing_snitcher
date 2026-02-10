@@ -1,1 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Trial Signup with Snitcher Spotter Enrichment</title>
+<script>
+        // Spotter callback and settings provided by user
+        function myCallback(identification) {
+            if (identification && identification.type !== "isp") {
+                var company = (identification.data || identification.company || identification);
+                // Store company data globally for later use
+                window.identifiedCompany = {
+                    name: company.name || company.company_name || '',
+                    domain: company.domain || company.website || '',
+                    industry: company.industry || company.sector || '',
+                    employee_range: company.size || company.employee_range || company.employees || '',
+                    location: company.location || company.country || ''
+                };
 
+                // If a helper to populate hidden fields exists, call it; otherwise set fields directly
+                if (typeof populateSpotterFieldsFromIdentification === 'function') {
+                    try { populateSpotterFieldsFromIdentification(identification); } catch(e) { /* ignore */ }
+                } else {
+                    try {
+                        var setIf = function(id, val){ var el = document.getElementById(id); if(el) el.value = val || ''; };
+                        setIf('snitcher_company_name', window.identifiedCompany.name);
+                        setIf('snitcher_company_domain', window.identifiedCompany.domain);
+                        setIf('snitcher_company_industry', window.identifiedCompany.industry);
+                        setIf('snitcher_company_size', window.identifiedCompany.employee_range);
+                        setIf('snitcher_company_country', window.identifiedCompany.location);
+                        setIf('snitcher_spotter_source', 'spotter');
+                    } catch(e) { /* ignore DOM errors during early load */ }
+                }
+            }
+        }
+
+        window.SpotterSettings = {
+            token: "1669|P9G2LpODKlqmjemOpfxWP1VT5pAX5w7o9zDD6GdFfb62326a",
+            callback: myCallback
+        };
+
+    </script>
+
+    <script>
+!function(e){"use strict";var t=e&&e.namespace;if(t&&e.profileId&&e.cdn){var i=window[t];if(i&&Array.isArray(i)||(i=window[t]=[]),!i.initialized&&!i._loaded)if(i._loaded)console&&console.warn("[Radar] Duplicate initialization attempted");else{i._loaded=!0;["track","page","identify","group","alias","ready","debug","on","off","once","trackClick","trackSubmit","trackLink","trackForm","pageview","screen","reset","register","setAnonymousId","addSourceMiddleware","addIntegrationMiddleware","addDestinationMiddleware","giveCookieConsent"].forEach((function(e){var a;i[e]=(a=e,function(){var e=window[t];if(e.initialized)return e[a].apply(e,arguments);var i=[].slice.call(arguments);return i.unshift(a),e.push(i),e})})),-1===e.apiEndpoint.indexOf("http")&&(e.apiEndpoint="https://"+e.apiEndpoint),i.bootstrap=function(){var t,i=document.createElement("script");i.async=!0,i.type="text/javascript",i.id="__radar__",i.setAttribute("data-settings",JSON.stringify(e)),i.src=[-1!==(t=e.cdn).indexOf("http")?"":"https://",t,"/releases/latest/radar.min.js"].join("");var a=document.scripts[0];a.parentNode.insertBefore(i,a)},i.bootstrap()}}else"undefined"!=typeof console&&console.error("[Radar] Configuration incomplete")}({
+  "apiEndpoint": "radar.snitcher.com",
+  "cdn": "cdn.snitcher.com",
+  "namespace": "Snitcher",
+  "profileId": "swLB5wegec",
+    features: {
+    formTracking: true,
+    clickTracking: true,
+    downloadTracking: true,
+    }
+});
+        // After the tracker bootstrap is set up, request Spotter identification when tracker is ready.
+        (function(){
+            try{
+                if (window.Snitcher && typeof window.Snitcher.ready === 'function') {
+                    window.Snitcher.ready(async function(){
+                        try{
+                            // If the promise API exists, use it; otherwise poll for it briefly
+                            if (typeof window.Snitcher.getSpotterIdentification === 'function'){
+                                const ident = await window.Snitcher.getSpotterIdentification();
+                                console.log('Spotter (inline ready):', ident);
+                                if (ident && ident.success && typeof populateSpotterFieldsFromIdentification === 'function'){
+                                    populateSpotterFieldsFromIdentification(ident);
+                                } else if (ident && ident.type && window.SpotterSettings && typeof window.SpotterSettings.callback === 'function'){
+                                    // legacy callback shape
+                                    window.SpotterSettings.callback(ident);
+                                }
+                                return;
+                            }
+                            // fallback: poll for the method up to ~4s
+                            var tries = 0;
+                            var iv = setInterval(async function(){
+                                tries++;
+                                if (typeof window.Snitcher.getSpotterIdentification === 'function'){
+                                    clearInterval(iv);
+                                    try{
+                                        const ident = await window.Snitcher.getSpotterIdentification();
+                                        console.log('Spotter (inline poll):', ident);
+                                        if (ident && ident.success && typeof populateSpotterFieldsFromIdentification === 'function'){
+                                            populateSpotterFieldsFromIdentification(ident);
+                                        } else if (ident && ident.type && window.SpotterSettings && typeof window.SpotterSettings.callback === 'function'){
+                                            window.SpotterSettings.callback(ident);
+                                        }
+                                    }catch(e){ console.warn('Spotter poll error', e); }
+                                } else if (tries>8) { clearInterval(iv); }
+                            }, 500);
+                        }catch(e){ console.warn('Spotter ready handler error', e); }
+                    });
+                }
+            }catch(e){ console.warn('Spotter inline init failed', e); }
+        })();
+    </script>
+
+<style>
+        :root{
+            --bg:#556b96;
+            --surface:#c4c170;
+            --text:#0f1724;
+            --muted:#556573;
+            --border:#e6eef6;
+            --accent:#0a84ff;
+            --accent-hover:#006fe6;
+            --focus-ring:rgba(10,132,255,0.12);
+        }
+
+        body {
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            max-width: 680px;
+            margin: 40px auto;
+            padding: 28px;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 18px;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        form {
+            background: var(--surface);
+            padding: 32px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 6px 20px rgba(15,23,36,0.04);
+        }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 11px 12px;
+            margin-top: 6px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: #fff;
+            color: var(--text);
+            transition: box-shadow .12s ease, border-color .12s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px var(--focus-ring);
+        }
+
+        button {
+            margin-top: 22px;
+            padding: 12px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(10,132,255,0.16);
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+        }
+
+        .note {
+            font-size: 0.92em;
+            color: var(--muted);
+            margin-top: 18px;
+        }
+</style>
+</head>
+<body>
+ 
+    <h1>Start Your Free Trial</h1>
+ 
+    <form id="free-trial-form" action="#" method="POST">
+<!-- Visible form fields -->
+<label for="name">Full Name *</label>
+<input type="text" id="name" name="name" required>
+ 
+        <label for="email">Work Email *</label>
+<input type="email" id="email" name="email" required>
+ 
+        <label for="company">Company Name (optional - will be auto-filled if detected)</label>
+<input type="text" id="visible_company" name="company">
+ 
+        <!-- Hidden fields for Snitcher Spotter data -->
+<input type="hidden" name="snitcher_company_name" id="snitcher_company_name">
+<input type="hidden" name="snitcher_company_industry" id="snitcher_company_industry">
+<input type="hidden" name="snitcher_company_size" id="snitcher_company_size">
+<input type="hidden" name="snitcher_company_location" id="snitcher_company_location">
+<input type="hidden" name="snitcher_company_uuid" id="snitcher_company_uuid">
+ 
+        <button type="submit">Start Free Trial</button>
+ 
+        <p class="note">
+            This is a demo form. On submission, check your backend or form handler to see the hidden Snitcher fields populated with company data (if a business visitor is detected).
+</p>
+</form>
+ 
+
+</body>
+</html>
